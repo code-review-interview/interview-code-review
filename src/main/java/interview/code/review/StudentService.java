@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
@@ -21,10 +23,12 @@ public class StudentService {
     String token = null;
 
     public String saveStudents(List<Student> students) {
+        students = students.parallelStream().filter(s -> !s.getName().isEmpty()).collect(Collectors.toList());
+
         String result = "";
         if (students.get(0).getGroup().getSchoolName() == "ABC") {
             result = saveToDb(students);
-        } else if (students.get(0).getGroup().getSchoolName().matches("[0-9]")) {
+        } else if (Pattern.compile("[0-9]").matcher(students.get(0).getGroup().getSchoolName()).matches()) {
             result = saveToFile(students);
         }
 
